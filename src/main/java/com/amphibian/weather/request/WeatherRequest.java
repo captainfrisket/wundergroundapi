@@ -8,6 +8,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.amphibian.weather.response.WeatherResponse;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
@@ -53,9 +54,13 @@ public class WeatherRequest {
 		
 		WebResource r = c.resource(url);
 		ClientResponse response = r.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
-		WeatherResponse w = response.getEntity(WeatherResponse.class);
-		return w;
-		
+		if(response.getStatus() == 200) {
+			WeatherResponse w = response.getEntity(WeatherResponse.class);
+			return w;
+		} else {
+			// An error has occured.  Throw an appropriate status code.
+			throw new ClientHandlerException("HTTP " + response.getStatus() + ": " + response.getStatusInfo() + " while accessing the requested forecast");
+		}
 	}
 	
 	
